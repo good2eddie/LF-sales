@@ -38,8 +38,9 @@ sayuran = [
     "daun_bawang_cung"
 ]
 
+
 # =========================
-# fungsi konversi koma ke float
+# convert input angka
 # =========================
 
 def convert_number(val):
@@ -47,12 +48,32 @@ def convert_number(val):
     if pd.isna(val):
         return 0
 
-    val = str(val).replace(",", ".")
+    val = str(val).strip()
+
+    if val == "":
+        return 0
+
+    val = val.replace(",", ".")
 
     try:
         return float(val)
     except:
         return 0
+
+
+# =========================
+# convert excel number → text
+# =========================
+
+def number_to_text(val):
+
+    if pd.isna(val):
+        return ""
+
+    if isinstance(val, float) or isinstance(val, int):
+        return str(val)
+
+    return str(val)
 
 
 # =========================
@@ -73,13 +94,19 @@ def load_data_by_date(tanggal):
     if df_tgl.empty:
         return None
 
-    return df_tgl.drop(columns=["tanggal"])
+    df_tgl = df_tgl.drop(columns=["tanggal"])
+
+    # ubah semua kolom sayur jadi TEXT
+    for s in sayuran:
+        df_tgl[s] = df_tgl[s].apply(number_to_text)
+
+    return df_tgl
 
 
 existing_data = load_data_by_date(tanggal)
 
 # =========================
-# jika tidak ada data → default
+# default data
 # =========================
 
 if existing_data is None:
@@ -87,10 +114,11 @@ if existing_data is None:
     data = []
 
     for cust in default_customers:
+
         row = {"customer": cust}
 
         for s in sayuran:
-            row[s] = "0"
+            row[s] = ""
 
         data.append(row)
 
@@ -99,6 +127,7 @@ if existing_data is None:
 else:
 
     df = existing_data
+
 
 # =========================
 # FORM INPUT
@@ -113,17 +142,13 @@ edited_df = st.data_editor(
 )
 
 # =========================
-# konversi angka
+# hitung total
 # =========================
 
 calc_df = edited_df.copy()
 
 for s in sayuran:
     calc_df[s] = calc_df[s].apply(convert_number)
-
-# =========================
-# TOTAL
-# =========================
 
 totals = calc_df[sayuran].sum()
 
@@ -132,11 +157,9 @@ total_row = {"customer": "TOTAL"}
 for s in sayuran:
     total_row[s] = totals[s]
 
-total_df = pd.DataFrame([total_row])
-
 st.write("### Total")
 
-st.dataframe(total_df, use_container_width=True)
+st.dataframe(pd.DataFrame([total_row]), use_container_width=True)
 
 st.divider()
 
@@ -151,7 +174,6 @@ if st.button("Save"):
     save_df["tanggal"] = tanggal
 
     cols = ["tanggal", "customer"] + sayuran
-
     save_df = save_df[cols]
 
     if os.path.exists(FILE_NAME):
@@ -171,6 +193,7 @@ if st.button("Save"):
     new_df.to_excel(FILE_NAME, index=False)
 
     st.success("Data berhasil disimpan")
+
 
 # =========================
 # tampilkan data hari ini
