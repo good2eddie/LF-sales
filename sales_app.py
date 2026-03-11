@@ -20,8 +20,15 @@ default_customers = [
     "Jittlada",
     "Aroya",
     "Sambal Dadakan",
-    "Omah Badok",
-    "Waterfall"
+    "Waterfall",
+    "GMME Pd cabe",
+    "Sadayana Sawangan",
+    "Omah badok",
+    "Pho Minh",
+    "Gubuk Bamboe",
+    "Madame Pho",
+    "Rimbun Sunda",
+    "Thai Sajja"    
 ]
 
 # =========================
@@ -29,13 +36,13 @@ default_customers = [
 # =========================
 
 sayuran = [
-    "kangkung",
-    "basil",
-    "hot_basil",
-    "selada",
-    "ketumbar",
-    "lobak",
-    "daun_bawang_cung"
+    "Kangkung",
+    "Basil",
+    "Hot basil",
+    "Selada",
+    "Lobak",
+    "D.Ketumbar",
+    "DB cung"
 ]
 
 
