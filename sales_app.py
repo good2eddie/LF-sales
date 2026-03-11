@@ -5,7 +5,11 @@ import os
 
 FILE_NAME = "input_sayur_harian.xlsx"
 
-# daftar customer default
+st.title("Form Input Sayuran Harian")
+
+tanggal = st.date_input("Tanggal", date.today())
+
+# daftar customer
 default_customers = [
     "Sambal Dadakan",
     "Saigon",
@@ -23,54 +27,39 @@ sayuran = [
     "daun_bawang_cung"
 ]
 
-st.title("Form Input Sayuran Harian")
+# buat dataframe awal
+data = []
 
-tanggal = st.date_input("Tanggal", date.today())
+for cust in default_customers:
+    row = {"customer": cust}
+    for s in sayuran:
+        row[s] = 0
+    data.append(row)
+
+df = pd.DataFrame(data)
 
 st.write("### Input Data")
 
-data = []
-
-for i, cust in enumerate(default_customers):
-
-    col = st.columns(len(sayuran) + 1)
-
-    customer = col[0].text_input(
-        f"Customer {i+1}",
-        value=cust,
-        key=f"cust{i}"
-    )
-
-    row = {
-        "tanggal": tanggal,
-        "customer": customer
-    }
-
-    for j, sayur in enumerate(sayuran):
-
-        val = col[j+1].number_input(
-            sayur,
-            min_value=0.0,
-            step=0.1,
-            key=f"{sayur}{i}"
-        )
-
-        row[sayur] = val
-
-    data.append(row)
+edited_df = st.data_editor(
+    df,
+    num_rows="dynamic",
+    use_container_width=True
+)
 
 st.write("---")
 
 if st.button("Save to Excel"):
 
-    df = pd.DataFrame(data)
+    edited_df["tanggal"] = tanggal
 
     if os.path.exists(FILE_NAME):
 
         old = pd.read_excel(FILE_NAME)
+        new_df = pd.concat([old, edited_df], ignore_index=True)
 
-        df = pd.concat([old, df], ignore_index=True)
+    else:
+        new_df = edited_df
 
-    df.to_excel(FILE_NAME, index=False)
+    new_df.to_excel(FILE_NAME, index=False)
 
     st.success("Data berhasil disimpan ke Excel")
